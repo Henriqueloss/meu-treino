@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meu treino</title>
+<meta name="description" content="Treinos A, B, C e D com registro de cargas. Funciona sem internet.">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#E9ECEF">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#18191B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#E9ECEF;--sheet:#FFFFFF;--field:#EDF0F3;--ink:#16181B;--muted:#5F6670;--hair:#D5D9DE;
+  --danger:#B3261E;--danger-ink:#FFFFFF;
+  --red:#C8342C;--blue:#2456C3;--yellow:#F1C232;--green:#23874A;
+  --plate:var(--red);--plate-ink:#FFFFFF;
+  --display:"Roboto Condensed","sans-serif-condensed","Arial Narrow",system-ui,sans-serif;
+  --body:Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#18191B;--sheet:#212326;--field:#2C2F33;--ink:#EDEFF1;--muted:#9BA2AB;--hair:#33363B;--danger:#F2665C;--danger-ink:#1E0E0C}
+}
+body[data-cor="red"]{--plate:var(--red);--plate-ink:#FFFFFF}
+body[data-cor="blue"]{--plate:var(--blue);--plate-ink:#FFFFFF}
+body[data-cor="yellow"]{--plate:var(--yellow);--plate-ink:#1C1A14}
+body[data-cor="green"]{--plate:var(--green);--plate-ink:#FFFFFF}
+.c-red{--c:var(--red);--c-ink:#FFFFFF}
+.c-blue{--c:var(--blue);--c-ink:#FFFFFF}
+.c-yellow{--c:var(--yellow);--c-ink:#1C1A14}
+.c-green{--c:var(--green);--c-ink:#FFFFFF}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--body);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+button,input{font:inherit;color:inherit;margin:0}
+button{background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
+input{min-width:0}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+[hidden]{display:none!important}
+#app{max-width:560px;margin:0 auto;padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+
+/* topo */
+.head{padding:calc(4px + env(safe-area-inset-top)) 16px 0}
+.bar{display:flex;align-items:center;gap:6px;min-height:52px}
+.hoje-data{flex:1;min-width:0;color:var(--muted);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tela-t{flex:1;margin:0;font-size:20px;font-weight:700}
+.icon{flex:none;width:44px;height:44px;display:inline-grid;place-items:center;border-radius:12px;color:var(--ink)}
+.icon:active{background:var(--field)}
+.icon:disabled{opacity:.28;pointer-events:none}
+
+/* anilha */
+.hero{display:flex;align-items:center;gap:16px;padding:6px 0 16px}
+.plate{flex:none;position:relative;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:var(--plate);color:var(--plate-ink);box-shadow:inset 0 0 0 6px rgb(0 0 0 / .15)}
+.plate::before{content:"";position:absolute;inset:21%;border-radius:50%;border:2px solid currentColor;opacity:.3}
+.plate span{position:relative;font:800 50px/1 var(--display)}
+.plate.roll{animation:roll .6s cubic-bezier(.2,.75,.25,1)}
+@keyframes roll{from{transform:rotate(-220deg) scale(.82)}to{transform:none}}
+.hero-txt{flex:1;min-width:0}
+.kicker{margin:0;font-size:15px;font-weight:500;color:var(--muted)}
+.hero h1{margin:2px 0;font-size:23px;line-height:1.2;font-weight:700}
+.meta{margin:0;font-size:14px;color:var(--muted)}
+.foco-in{display:block;width:100%;height:42px;margin:4px 0;padding:0 10px;border:0;border-radius:10px;background:var(--field);font-size:18px;font-weight:700}
+.foco-in:focus{outline:none;box-shadow:inset 0 0 0 2px var(--plate)}
+
+.note{margin:0 0 14px;padding:11px 14px;border-radius:12px;background:var(--sheet);border-left:4px solid var(--plate);font-size:15px;line-height:1.4}
+.note.warn{border-left-color:var(--danger)}
+.link{font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:6px 2px}
+
+/* abas */
+.tabs{display:flex;align-items:flex-start;gap:8px;padding-bottom:24px}
+.tab{position:relative;flex:none;width:52px;height:42px;border-radius:12px;background:var(--sheet);border:1px solid var(--hair);font:700 19px/1 var(--display);color:var(--ink)}
+.tab::after{content:"";position:absolute;left:50%;bottom:6px;width:16px;height:3px;margin-left:-8px;border-radius:2px;background:var(--c)}
+.tab.on{background:var(--c);color:var(--c-ink);border-color:transparent}
+.tab.on::after{display:none}
+.tab small{position:absolute;top:calc(100% + 3px);left:-8px;right:-8px;font:500 12px/1.2 var(--body);color:var(--muted)}
+.count{margin-left:auto;align-self:center;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.prog{height:4px;margin:0 0 14px;border-radius:2px;background:var(--hair);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--plate);transition:width .25s ease}
+
+/* lista */
+.list{list-style:none;margin:0;padding:0;background:var(--sheet);border-block:1px solid var(--hair)}
+.list:empty{display:none}
+.ex{padding:12px 16px 6px}
+.ex+.ex{border-top:1px solid var(--hair)}
+.ex-top{display:flex;align-items:center;gap:12px;min-height:40px}
+.num{flex:none;position:relative;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--hair);color:var(--muted);font:700 17px/1 var(--display);transition:background-color .15s,border-color .15s,color .15s}
+.num svg{position:absolute;opacity:0}
+.ex.done .num{background:var(--plate);border-color:var(--plate);color:var(--plate-ink)}
+.ex.done .num span{opacity:0}
+.ex.done .num svg{opacity:1}
+.name{flex:1;min-width:0;margin:0;font-size:17px;font-weight:600;line-height:1.3}
+.ex.done .name{color:var(--muted)}
+.vals{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 0 50px}
+.n{height:44px;padding:0 10px;border:0;border-radius:10px;background:var(--field);text-align:center;font:700 21px/1 var(--display);font-variant-numeric:tabular-nums}
+.n:focus{outline:none;box-shadow:inset 0 0 0 2px var(--plate)}
+.n::placeholder{color:var(--muted);opacity:.6;font-weight:500}
+.sr{width:52px}
+.rp{width:64px}
+@supports (field-sizing:content){.rp{width:auto;field-sizing:content;min-width:52px;max-width:9em}}
+.rp.longo{font:600 16px/1 var(--body)}
+.x{color:var(--muted);font-size:17px}
+.kg{margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--muted);font-size:15px}
+.cg{width:84px;color:var(--ink)}
+.obs{display:block;width:calc(100% - 50px);margin:2px 0 0 50px;padding:7px 0;border:0;border-bottom:1px solid transparent;border-radius:0;background:none;font-size:14px;color:var(--muted)}
+.obs:focus{outline:none;color:var(--ink);border-bottom-color:var(--plate)}
+.obs::placeholder{color:var(--muted);opacity:.55}
+
+/* edição */
+.name-in{flex:1;min-width:0;height:42px;padding:0 10px;border:0;border-radius:10px;background:var(--field);font-size:16px;font-weight:600}
+.name-in:focus{outline:none;box-shadow:inset 0 0 0 2px var(--plate)}
+.tools{display:flex;flex:none}
+.tools .icon{width:38px;height:42px}
+.tools .del{color:var(--danger)}
+.add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;background:var(--sheet);border-bottom:1px solid var(--hair);font-weight:700}
+.empty{margin:0;padding:32px 24px;color:var(--muted);text-align:center}
+
+/* barra de baixo */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:10px;max-width:560px;margin:0 auto;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--hair)}
+body.typing .dock{display:none}
+.dock .icon{width:54px;height:54px;border-radius:14px;background:var(--sheet);border:1px solid var(--hair)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:54px;padding:0 18px;border-radius:14px;font-size:17px;font-weight:700;text-align:center}
+.btn.go{background:var(--plate);color:var(--plate-ink)}
+.btn.quiet{background:var(--sheet);border:1px solid var(--hair)}
+.btn.danger{background:var(--danger);color:var(--danger-ink)}
+.btn:active{filter:brightness(.93)}
+.btn:disabled{opacity:.4}
+.wide{flex:1;width:100%}
+
+/* confirmação */
+.sheet-bg{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;background:rgb(0 0 0 / .45);opacity:0;transition:opacity .18s}
+.sheet-bg.show{opacity:1}
+.sheet{width:100%;max-width:560px;padding:22px 16px calc(16px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0;background:var(--sheet);transform:translateY(28px);transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.sheet-bg.show .sheet{transform:none}
+.sheet h2{margin:0 0 6px;font-size:20px}
+.sheet p{margin:0 0 20px;color:var(--muted)}
+.sheet-acts{display:flex;gap:10px}
+.sheet-acts .btn{flex:1}
+
+#toast{position:fixed;left:16px;right:16px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:15;max-width:528px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--ink);color:var(--bg);font-size:15px;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
+#toast.show{opacity:1;transform:none;pointer-events:auto}
+#toast button{margin-left:auto;padding:6px 2px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+/* histórico */
+.hist{list-style:none;margin:8px 0 0;padding:0;background:var(--sheet);border-block:1px solid var(--hair)}
+.hist>li+li{border-top:1px solid var(--hair)}
+.hist summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.hist summary::-webkit-details-marker{display:none}
+.hist summary>svg{flex:none;color:var(--muted);transition:transform .15s}
+.hist details[open] summary>svg{transform:rotate(90deg)}
+.disco{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:var(--c-ink);font:800 17px/1 var(--display)}
+.h-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.h-txt small{color:var(--muted);font-size:14px}
+.h-tab{width:calc(100% - 32px);margin:0 16px 4px;border-collapse:collapse;font-size:15px}
+.h-tab td{padding:9px 0;border-top:1px solid var(--hair);vertical-align:top}
+.h-tab td small{display:block;color:var(--muted);font-size:13px}
+.h-sr,.h-kg{padding-left:12px!important;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.h-kg{font-weight:700}
+.h-tab tr.pulou td{color:var(--muted);opacity:.7}
+.link.perigo{display:block;margin:4px 16px 12px;color:var(--danger)}
+
+/* backup */
+.painel{display:grid;gap:10px;padding:8px 16px}
+.painel p{margin:0 0 6px;color:var(--muted)}
+label.btn{cursor:pointer}
+.rodape{margin:0;padding:12px 16px;color:var(--muted);font-size:13px}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body data-cor="red">
+<div id="app"></div>
+<noscript><p style="padding:24px">Ative o JavaScript para usar o app.</p></noscript>
+<script>
+(() => {
+  'use strict';
+
+  const VERSAO = '1.0';
+  const CHAVE = 'meu-treino:v1';
+  const ORDEM = ['A', 'B', 'C', 'D'];
+  const COR = { A: 'red', B: 'blue', C: 'yellow', D: 'green' };
+
+  // Ficha inicial: usada só no primeiro acesso. Depois vale o que estiver salvo no celular.
+  const PLANO = {
+    A: { foco: 'Costas e bíceps', ex: [
+      ['Pulley frente supinado', '3', '12', ''],
+      ['Remada curvada articulada', '3', '12', ''],
+      ['Remada baixa', '3', '8', 'Fazer as 3 pegadas'],
+      ['Crucifixo inverso', '3', '12', ''],
+      ['Face pull', '3', '12', '+ Rosca direta na polia'],
+      ['Rosca 21 com barra', '3', '21', ''],
+      ['Prancha lateral', '', '', ''],
+    ] },
+    B: { foco: 'Pernas: glúteos e posteriores', ex: [
+      ['Agachamento hack', '3', '12', ''],
+      ['Elevação pélvica na máquina', '3', '12', ''],
+      ['Leg press 45°', '3', '12', 'Unilateral'],
+      ['Agachamento articulado sumô', '3', '12', ''],
+      ['Cadeira flexora', '3', '10', ''],
+      ['Coice na máquina', '3', '10', ''],
+      ['Banco romano', '', '', ''],
+      ['Abdominal infra', '', 'Até a falha', ''],
+    ] },
+    C: { foco: 'Peito, ombros e tríceps', ex: [
+      ['Tríceps na máquina', '3', '12', ''],
+      ['Crucifixo na máquina', '3', '10', ''],
+      ['Supino reto com halter', '3', '10', 'Unilateral'],
+      ['Desenvolvimento Arnold', '3', '12', ''],
+      ['Elevação lateral unilateral na polia', '3', '10', ''],
+      ['Elevação frontal na polia', '3', '12', 'Com corda'],
+      ['Tríceps francês na polia', '3', '10', ''],
+      ['Prancha + abdominal remador com peso', '', '', 'Feitos em conjunto'],
+    ] },
+    D: { foco: 'Pernas: quadríceps e panturrilha', ex: [
+      ['Cadeira extensora', '3', '12', 'Unilateral'],
+      ['Afundo no Smith', '3', '10', ''],
+      ['Agachamento no Smith', '3', '15', ''],
+      ['Cadeira adutora', '3', '10', ''],
+      ['Leg press horizontal', '3', '10', 'Unilateral'],
+      ['Panturrilha livre', '3', '15', ''],
+      ['Abdominal oblíquo + supra', '', '', '5 de cada ou 7 de cada'],
+    ] },
+  };
+
+  const svg = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const I = {
+    hist: svg('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>'),
+    salvar: svg('<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/>'),
+    lapis: svg('<path d="M21.17 6.81a2.82 2.82 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/>'),
+    ok: svg('<path d="M20 6 9 17l-5-5"/>'),
+    cima: svg('<path d="m18 15-6-6-6 6"/>'),
+    baixo: svg('<path d="m6 9 6 6 6-6"/>'),
+    lixo: svg('<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
+    voltar: svg('<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>'),
+    seta: svg('<path d="m9 18 6-6-6-6"/>'),
+    mais: svg('<path d="M5 12h14"/><path d="M12 5v14"/>'),
+  };
+
+  const app = document.getElementById('app');
+  const pad = n => String(n).padStart(2, '0');
+  const diaDe = ts => { const d = new Date(ts); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  const fData = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+  const fDataAno = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
+  const fHora = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const fHoje = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const quando = ts => (new Date(ts).getFullYear() === new Date().getFullYear() ? fData : fDataAno).format(ts);
+  const hojeExtenso = () => { const s = fHoje.format(Date.now()); return s.charAt(0).toUpperCase() + s.slice(1); };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const txt = v => (v == null ? '' : String(v));
+  const repsLongo = v => /[^\d\s.,\-–\/x×]/i.test(v);
+  const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  const proximoDe = l => ORDEM[(ORDEM.indexOf(l) + 1) % ORDEM.length];
+
+  /* ---------- dados ---------- */
+  const exercicio = (nome, series, reps, obs) => ({ id: uid(), nome, series, reps, carga: '', obs, feito: false });
+
+  function estadoNovo() {
+    const treinos = {};
+    ORDEM.forEach(l => { treinos[l] = { foco: PLANO[l].foco, exercicios: PLANO[l].ex.map(e => exercicio(...e)) }; });
+    return { v: 1, proximo: 'A', treinos, historico: [] };
+  }
+
+  function normalizar(s) {
+    if (!s || typeof s !== 'object' || !s.treinos) return null;
+    if (!ORDEM.every(l => s.treinos[l] && Array.isArray(s.treinos[l].exercicios))) return null;
+    const limpo = e => ({ id: txt(e.id) || uid(), nome: txt(e.nome), series: txt(e.series), reps: txt(e.reps), carga: txt(e.carga), obs: txt(e.obs), feito: !!e.feito });
+    const treinos = {};
+    ORDEM.forEach(l => {
+      treinos[l] = { foco: txt(s.treinos[l].foco), exercicios: s.treinos[l].exercicios.filter(e => e && typeof e === 'object').map(limpo) };
+    });
+    const historico = (Array.isArray(s.historico) ? s.historico : [])
+      .filter(h => h && ORDEM.includes(h.treino) && Number.isFinite(Number(h.ts)) && Array.isArray(h.exercicios))
+      .map(h => ({
+        id: txt(h.id) || uid(), ts: Number(h.ts), treino: h.treino, foco: txt(h.foco),
+        exercicios: h.exercicios.filter(e => e && typeof e === 'object').map(e => { const x = limpo(e); delete x.id; return x; }),
+      }))
+      .sort((a, b) => b.ts - a.ts);
+    return { v: 1, proximo: ORDEM.includes(s.proximo) ? s.proximo : 'A', treinos, historico };
+  }
+
+  let salvaOk = true;
+  function carregar() {
+    let raw = null;
+    try { raw = localStorage.getItem(CHAVE); } catch (e) { salvaOk = false; }
+    if (raw) {
+      try { const s = normalizar(JSON.parse(raw)); if (s) return s; } catch (e) { /* segue */ }
+      try { localStorage.setItem(CHAVE + ':ilegivel', raw); } catch (e) { /* segue */ }
+    }
+    return estadoNovo();
+  }
+
+  let S = carregar();
+  let tSalva = 0;
+  function gravar() {
+    clearTimeout(tSalva);
+    try { localStorage.setItem(CHAVE, JSON.stringify(S)); salvaOk = true; } catch (e) { salvaOk = false; }
+    const aviso = document.getElementById('aviso-salvar');
+    if (aviso) aviso.hidden = salvaOk;
+  }
+  function salvar() { clearTimeout(tSalva); tSalva = setTimeout(gravar, 300); }
+
+  /* ---------- telas ---------- */
+  const view = { tela: 'treino', letra: S.proximo, editando: false };
+  let diaVisto = diaDe(Date.now());
+  let pedidoInstalar = null;
+  let sheet = null;
+
+  const registroDeHoje = () => { const h = S.historico[0]; return h && diaDe(h.ts) === diaDe(Date.now()) ? h : null; };
+
+  function render() {
+    diaVisto = diaDe(Date.now());
+    document.body.dataset.cor = COR[view.letra];
+    document.body.classList.remove('typing');
+    if (view.tela === 'historico') renderHistorico();
+    else if (view.tela === 'backup') renderBackup();
+    else renderTreino();
+  }
+
+  function renderTreino() {
+    const L = view.letra, T = S.treinos[L], exs = T.exercicios, ed = view.editando;
+    const feitoHoje = registroDeHoje();
+    const doDia = L === S.proximo;
+    const kicker = doDia ? (feitoHoje ? 'Próximo treino' : 'Treino de hoje') : 'Treino ' + L;
+    const ult = S.historico.find(h => h.treino === L);
+    const f = exs.filter(e => e.feito).length;
+
+    let notas = `<p class="note" id="nota-instalar"${pedidoInstalar ? '' : ' hidden'}>Instale o app para usar sem internet. <button class="link" data-act="instalar">Instalar</button></p>`;
+    if (doDia && feitoHoje) notas += `<p class="note">Você finalizou o treino ${feitoHoje.treino} hoje às ${fHora.format(feitoHoje.ts)}.</p>`;
+    if (!doDia) notas += `<p class="note">Hoje é dia do treino ${S.proximo}. <button class="link" data-act="hoje">Fazer o ${L} hoje</button></p>`;
+    notas += `<p class="note warn" id="aviso-salvar"${salvaOk ? ' hidden' : ''}>Este navegador não está guardando os dados. Instale o app para salvar seus treinos.</p>`;
+
+    app.innerHTML = `
+<header class="head">
+  <div class="bar">
+    <span class="hoje-data">${esc(hojeExtenso())}</span>
+    <button class="icon" data-act="historico" aria-label="Histórico">${I.hist}</button>
+    <button class="icon" data-act="backup" aria-label="Backup">${I.salvar}</button>
+  </div>
+  <div class="hero">
+    <div class="plate" id="plate" aria-hidden="true"><span>${L}</span></div>
+    <div class="hero-txt">
+      <p class="kicker">${esc(kicker)}</p>
+      ${ed ? `<input class="foco-in" data-foco value="${esc(T.foco)}" placeholder="Nome do treino" aria-label="Nome do treino ${L}" enterkeyhint="done">`
+           : `<h1>${esc(T.foco || 'Treino ' + L)}</h1>`}
+      <p class="meta">${ult ? 'Última vez em ' + esc(quando(ult.ts)) : 'Ainda não registrado'}</p>
+    </div>
+  </div>
+  ${notas}
+  <div class="tabs" role="tablist" aria-label="Treinos">
+    ${ORDEM.map(l => `<button class="tab c-${COR[l]}${l === L ? ' on' : ''}" role="tab" aria-selected="${l === L}" data-tab="${l}">${l}${l === S.proximo ? `<small>${feitoHoje ? 'próximo' : 'hoje'}</small>` : ''}</button>`).join('')}
+    ${ed ? '' : `<span class="count" id="count">${f} de ${exs.length} feitos</span>`}
+  </div>
+  ${ed ? '' : `<div class="prog" aria-hidden="true"><i id="prog" style="width:${exs.length ? Math.round(f / exs.length * 100) : 0}%"></i></div>`}
+</header>
+<ol class="list">${exs.map((e, i) => itemTreino(e, i, exs.length, ed)).join('')}</ol>
+${ed ? `<button class="add" data-act="adicionar">${I.mais}Adicionar exercício</button>` : ''}
+${!ed && !exs.length ? '<p class="empty">Este treino está vazio. Toque no lápis para adicionar exercícios.</p>' : ''}
+<div class="dock">
+  ${ed ? '<button class="btn go wide" data-act="concluir">Concluir edição</button>'
+       : `<button class="icon" data-act="editar" aria-label="Editar lista de exercícios">${I.lapis}</button><button class="btn go wide" data-act="finalizar"${exs.length ? '' : ' disabled'}>Finalizar treino ${L}</button>`}
+</div>`;
+  }
+
+  function itemTreino(e, i, n, ed) {
+    const num = ed
+      ? `<span class="num"><span>${i + 1}</span></span>`
+      : `<button class="num" data-act="feito" data-i="${i}" aria-pressed="${e.feito}" aria-label="Feito: ${esc(e.nome)}"><span>${i + 1}</span>${I.ok}</button>`;
+    const titulo = ed
+      ? `<input class="name-in" data-i="${i}" data-f="nome" value="${esc(e.nome)}" placeholder="Nome do exercício" aria-label="Nome do exercício ${i + 1}" enterkeyhint="done">
+         <div class="tools">
+           <button class="icon" data-act="subir" data-i="${i}" aria-label="Subir"${i === 0 ? ' disabled' : ''}>${I.cima}</button>
+           <button class="icon" data-act="descer" data-i="${i}" aria-label="Descer"${i === n - 1 ? ' disabled' : ''}>${I.baixo}</button>
+           <button class="icon del" data-act="remover" data-i="${i}" aria-label="Remover">${I.lixo}</button>
+         </div>`
+      : `<h2 class="name">${esc(e.nome)}</h2>`;
+    return `<li class="ex${e.feito && !ed ? ' done' : ''}">
+  <div class="ex-top">${num}${titulo}</div>
+  <div class="vals">
+    <input class="n sr" data-i="${i}" data-f="series" value="${esc(e.series)}" inputmode="numeric" placeholder="–" aria-label="Séries" enterkeyhint="done">
+    <span class="x" aria-hidden="true">×</span>
+    <input class="n rp${repsLongo(e.reps) ? ' longo' : ''}" data-i="${i}" data-f="reps" value="${esc(e.reps)}" placeholder="–" aria-label="Repetições" enterkeyhint="done">
+    <label class="kg"><input class="n cg" data-i="${i}" data-f="carga" value="${esc(e.carga)}" inputmode="decimal" placeholder="–" aria-label="Carga em kg" enterkeyhint="done"><span>kg</span></label>
+  </div>
+  <input class="obs" data-i="${i}" data-f="obs" value="${esc(e.obs)}" placeholder="Adicionar observação" aria-label="Observação" enterkeyhint="done">
+</li>`;
+  }
+
+  function renderHistorico() {
+    const H = S.historico;
+    app.innerHTML = `
+<header class="head">
+  <div class="bar">
+    <button class="icon" data-act="voltar" aria-label="Voltar">${I.voltar}</button>
+    <h1 class="tela-t">Histórico</h1>
+  </div>
+</header>
+${H.length ? `<ul class="hist">${H.map(itemHistorico).join('')}</ul>`
+  : '<p class="empty">Os treinos que você finalizar aparecem aqui, com a carga usada em cada exercício.</p>'}`;
+  }
+
+  function itemHistorico(h) {
+    const marcou = h.exercicios.some(e => e.feito);
+    const feitos = h.exercicios.filter(e => e.feito).length;
+    const linhas = h.exercicios.map(e => `<tr${marcou && !e.feito ? ' class="pulou"' : ''}>
+  <td>${esc(e.nome)}${e.obs ? `<small>${esc(e.obs)}</small>` : ''}</td>
+  <td class="h-sr">${esc(e.series || '–')} × ${esc(e.reps || '–')}</td>
+  <td class="h-kg">${e.carga ? esc(e.carga) + ' kg' : '–'}</td>
+</tr>`).join('');
+    return `<li><details>
+<summary>
+  <span class="disco c-${COR[h.treino]}" aria-hidden="true">${h.treino}</span>
+  <span class="h-txt"><strong>${esc(h.foco || 'Treino ' + h.treino)}</strong><small>${esc(quando(h.ts))} às ${esc(fHora.format(h.ts))}${marcou ? `, ${feitos} de ${h.exercicios.length} feitos` : ''}</small></span>
+  ${I.seta}
+</summary>
+<table class="h-tab"><tbody>${linhas}</tbody></table>
+<button class="link perigo" data-act="excluir-reg" data-id="${esc(h.id)}">Excluir registro</button>
+</details></li>`;
+  }
+
+  function renderBackup() {
+    const n = S.historico.length;
+    app.innerHTML = `
+<header class="head">
+  <div class="bar">
+    <button class="icon" data-act="voltar" aria-label="Voltar">${I.voltar}</button>
+    <h1 class="tela-t">Backup</h1>
+  </div>
+</header>
+<section class="painel">
+  <p>Treinos, cargas e histórico ficam salvos só neste celular. Exporte um backup de vez em quando e guarde no Drive ou no e-mail. Se trocar de celular ou limpar os dados do Chrome, é só importar o arquivo.</p>
+  <button class="btn go wide" data-act="exportar">Exportar backup</button>
+  ${podeEnviar() ? '<button class="btn quiet wide" data-act="enviar">Enviar backup</button>' : ''}
+  <label class="btn quiet wide">Importar backup<input type="file" accept=".json,application/json" data-importar hidden></label>
+</section>
+<p class="rodape">${n} ${n === 1 ? 'treino registrado' : 'treinos registrados'}. Versão ${VERSAO}.</p>`;
+  }
+
+  /* ---------- ações ---------- */
+  function irPara(tela) {
+    if (view.editando) limparVazios();
+    view.tela = tela; view.editando = false;
+    history.pushState({ tela }, '');
+    render(); window.scrollTo(0, 0);
+  }
+
+  function abrirTreino(l) {
+    if (view.editando) limparVazios();
+    view.letra = l; view.editando = false;
+    render(); window.scrollTo(0, 0);
+  }
+
+  function limparVazios() {
+    const T = S.treinos[view.letra];
+    T.exercicios = T.exercicios.filter(e => e.nome.trim() || e.series || e.reps || e.carga || e.obs);
+    T.exercicios.forEach(e => { e.nome = e.nome.trim() || 'Exercício sem nome'; });
+    T.foco = T.foco.trim();
+    gravar();
+  }
+
+  function alternarFeito(botao, i) {
+    const e = S.treinos[view.letra].exercicios[i];
+    if (!e) return;
+    e.feito = !e.feito;
+    salvar();
+    botao.closest('.ex').classList.toggle('done', e.feito);
+    botao.setAttribute('aria-pressed', String(e.feito));
+    progresso();
+    if (e.feito && navigator.vibrate) navigator.vibrate(12);
+  }
+
+  function progresso() {
+    const exs = S.treinos[view.letra].exercicios, f = exs.filter(e => e.feito).length;
+    const c = document.getElementById('count'), p = document.getElementById('prog');
+    if (c) c.textContent = `${f} de ${exs.length} feitos`;
+    if (p) p.style.width = (exs.length ? Math.round(f / exs.length * 100) : 0) + '%';
+  }
+
+  function mover(i, d) {
+    const exs = S.treinos[view.letra].exercicios, j = i + d;
+    if (j < 0 || j >= exs.length) return;
+    [exs[i], exs[j]] = [exs[j], exs[i]];
+    salvar(); render();
+    const alvo = app.querySelector(`[data-act="${d < 0 ? 'subir' : 'descer'}"][data-i="${j}"]`);
+    if (alvo && !alvo.disabled) alvo.focus({ preventScroll: true });
+  }
+
+  function remover(i) {
+    const L = view.letra, exs = S.treinos[L].exercicios;
+    const [tirado] = exs.splice(i, 1);
+    salvar(); render();
+    toast(`${tirado.nome || 'Exercício'} removido.`, 'Desfazer', () => {
+      S.treinos[L].exercicios.splice(i, 0, tirado); gravar();
+      if (view.tela === 'treino' && view.letra === L) render();
+    });
+  }
+
+  function adicionar() {
+    const exs = S.treinos[view.letra].exercicios;
+    exs.push(exercicio('', '', '', ''));
+    salvar(); render();
+    const campo = app.querySelector(`.name-in[data-i="${exs.length - 1}"]`);
+    if (campo) { campo.scrollIntoView({ block: 'center' }); campo.focus(); }
+  }
+
+  function pedirFinalizar() {
+    const L = view.letra, exs = S.treinos[L].exercicios, prox = proximoDe(L);
+    const f = exs.filter(e => e.feito).length;
+    const parcial = f > 0 && f < exs.length ? ` Você marcou ${f} de ${exs.length} exercícios.` : '';
+    confirmar({
+      titulo: `Finalizar treino ${L}?`,
+      texto: `As cargas de hoje vão para o histórico e o próximo treino passa a ser o ${prox}.${parcial}`,
+      ok: 'Finalizar',
+      acao: () => finalizar(L),
+    });
+  }
+
+  function finalizar(L) {
+    const T = S.treinos[L], prox = proximoDe(L);
+    S.historico.unshift({
+      id: uid(), ts: Date.now(), treino: L, foco: T.foco,
+      exercicios: T.exercicios.map(({ nome, series, reps, carga, obs, feito }) => ({ nome, series, reps, carga, obs, feito: !!feito })),
+    });
+    T.exercicios.forEach(e => { e.feito = false; });
+    S.proximo = prox;
+    gravar();
+    view.letra = prox; view.editando = false;
+    render(); window.scrollTo(0, 0);
+    const plate = document.getElementById('plate');
+    if (plate) { plate.classList.remove('roll'); void plate.offsetWidth; plate.classList.add('roll'); }
+    toast(`Treino ${L} finalizado. Próximo: ${prox}.`);
+  }
+
+  function pedirExcluir(id) {
+    const h = S.historico.find(x => x.id === id);
+    if (!h) return;
+    confirmar({
+      titulo: 'Excluir registro?',
+      texto: `O treino ${h.treino} de ${quando(h.ts)} sai do histórico. As cargas atuais não mudam.`,
+      ok: 'Excluir', perigo: true,
+      acao: () => { S.historico = S.historico.filter(x => x.id !== id); gravar(); render(); toast('Registro excluído.'); },
+    });
+  }
+
+  function arquivoBackup() {
+    return new File([JSON.stringify(S, null, 2)], `meu-treino-${diaDe(Date.now())}.json`, { type: 'application/json' });
+  }
+  function exportar() {
+    const arq = arquivoBackup(), url = URL.createObjectURL(arq);
+    const a = document.createElement('a');
+    a.href = url; a.download = arq.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('Backup exportado.');
+  }
+  function podeEnviar() {
+    try { return !!(navigator.canShare && navigator.canShare({ files: [arquivoBackup()] })); } catch (e) { return false; }
+  }
+  async function enviar() {
+    try { await navigator.share({ files: [arquivoBackup()], title: 'Backup do Meu treino' }); }
+    catch (e) { if (!e || e.name !== 'AbortError') toast('Não deu para enviar. Use Exportar backup.'); }
+  }
+  function importar(arq) {
+    arq.text().then(conteudo => {
+      let s = null;
+      try { s = normalizar(JSON.parse(conteudo)); } catch (e) { s = null; }
+      if (!s) { toast('Esse arquivo não é um backup do Meu treino.'); return; }
+      const n = s.historico.length;
+      confirmar({
+        titulo: 'Importar backup?',
+        texto: `Os treinos e o histórico deste celular serão trocados pelos do arquivo (${n} ${n === 1 ? 'treino registrado' : 'treinos registrados'}).`,
+        ok: 'Importar', perigo: true,
+        acao: () => { S = s; gravar(); view.letra = S.proximo; render(); toast('Backup importado.'); },
+      });
+    });
+  }
+
+  async function instalar() {
+    if (!pedidoInstalar) return;
+    const p = pedidoInstalar; pedidoInstalar = null;
+    p.prompt();
+    try { await p.userChoice; } catch (e) { /* segue */ }
+    const nota = document.getElementById('nota-instalar');
+    if (nota) nota.hidden = true;
+  }
+
+  /* ---------- confirmação e avisos ---------- */
+  function confirmar({ titulo, texto, ok, perigo, acao }) {
+    if (sheet) return;
+    const el = document.createElement('div');
+    el.className = 'sheet-bg';
+    el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-titulo">
+  <h2 id="sheet-titulo">${esc(titulo)}</h2>
+  <p>${esc(texto)}</p>
+  <div class="sheet-acts">
+    <button class="btn quiet" data-r="nao">Cancelar</button>
+    <button class="btn ${perigo ? 'danger' : 'go'}" data-r="sim">${esc(ok)}</button>
+  </div>
+</div>`;
+    el.addEventListener('click', ev => {
+      if (el.dataset.fechando) return;
+      const r = ev.target.closest('[data-r]');
+      if (ev.target === el || (r && r.dataset.r === 'nao')) { el.dataset.fechando = '1'; history.back(); }
+      else if (r && r.dataset.r === 'sim') { el.dataset.fechando = '1'; history.back(); acao(); }
+    });
+    document.body.appendChild(el);
+    sheet = el;
+    history.pushState(Object.assign({}, history.state, { sheet: 1 }), '');
+    requestAnimationFrame(() => el.classList.add('show'));
+  }
+  function fecharSheet() {
+    if (!sheet) return;
+    const el = sheet; sheet = null;
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 200);
+  }
+
+  let tToast = 0;
+  function toast(msg, acao, fn) {
+    let el = document.getElementById('toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'toast'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+      document.body.appendChild(el);
+    }
+    el.innerHTML = `<span>${esc(msg)}</span>${acao ? `<button type="button">${esc(acao)}</button>` : ''}`;
+    const esconder = () => el.classList.remove('show');
+    if (acao) el.querySelector('button').addEventListener('click', () => { esconder(); fn(); }, { once: true });
+    el.classList.add('show');
+    clearTimeout(tToast);
+    tToast = setTimeout(esconder, acao ? 6000 : 3000);
+  }
+
+  /* ---------- eventos ---------- */
+  app.addEventListener('click', ev => {
+    const tab = ev.target.closest('[data-tab]');
+    if (tab) { abrirTreino(tab.dataset.tab); return; }
+    const b = ev.target.closest('[data-act]');
+    if (!b || b.disabled) return;
+    const i = Number(b.dataset.i);
+    switch (b.dataset.act) {
+      case 'feito': alternarFeito(b, i); break;
+      case 'historico': irPara('historico'); break;
+      case 'backup': irPara('backup'); break;
+      case 'voltar': history.back(); break;
+      case 'hoje': S.proximo = view.letra; gravar(); render(); toast(`Treino ${view.letra} é o de hoje.`); break;
+      case 'editar': view.editando = true; render(); break;
+      case 'concluir': limparVazios(); view.editando = false; render(); break;
+      case 'adicionar': adicionar(); break;
+      case 'subir': mover(i, -1); break;
+      case 'descer': mover(i, 1); break;
+      case 'remover': remover(i); break;
+      case 'finalizar': pedirFinalizar(); break;
+      case 'exportar': exportar(); break;
+      case 'enviar': enviar(); break;
+      case 'excluir-reg': pedirExcluir(b.dataset.id); break;
+      case 'instalar': instalar(); break;
+    }
+  });
+
+  app.addEventListener('input', ev => {
+    const t = ev.target;
+    if (t.hasAttribute('data-foco')) { S.treinos[view.letra].foco = t.value; salvar(); return; }
+    const campo = t.dataset.f;
+    if (!campo) return;
+    const e = S.treinos[view.letra].exercicios[Number(t.dataset.i)];
+    if (e) { e[campo] = t.value; salvar(); }
+    if (campo === 'reps') t.classList.toggle('longo', repsLongo(t.value));
+  });
+
+  app.addEventListener('change', ev => {
+    const t = ev.target;
+    if (!t.matches('[data-importar]') || !t.files || !t.files[0]) return;
+    const arq = t.files[0];
+    t.value = '';
+    importar(arq);
+  });
+
+  app.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter' && ev.target.matches('input:not([type=file])')) { ev.preventDefault(); ev.target.blur(); }
+  });
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && sheet) history.back(); });
+
+  app.addEventListener('focusin', ev => {
+    const t = ev.target;
+    if (!t.matches('input:not([type=file])')) return;
+    document.body.classList.add('typing');
+    if (t.classList.contains('n')) setTimeout(() => { try { t.select(); } catch (e) { /* segue */ } }, 0);
+  });
+  app.addEventListener('focusout', () => {
+    setTimeout(() => {
+      const a = document.activeElement;
+      if (!a || !a.matches || !a.matches('input:not([type=file])')) document.body.classList.remove('typing');
+    }, 80);
+  });
+
+  window.addEventListener('popstate', () => {
+    if (sheet) { fecharSheet(); return; }
+    const tela = (history.state && history.state.tela) || 'treino';
+    if (tela !== view.tela) { view.tela = tela; render(); window.scrollTo(0, 0); }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') { gravar(); return; }
+    if (diaDe(Date.now()) !== diaVisto && view.tela === 'treino' && !view.editando && !sheet) {
+      view.letra = S.proximo; render();
+    }
+  });
+  window.addEventListener('pagehide', gravar);
+
+  window.addEventListener('beforeinstallprompt', ev => {
+    ev.preventDefault();
+    pedidoInstalar = ev;
+    const nota = document.getElementById('nota-instalar');
+    if (nota) nota.hidden = false;
+  });
+  window.addEventListener('appinstalled', () => {
+    pedidoInstalar = null;
+    const nota = document.getElementById('nota-instalar');
+    if (nota) nota.hidden = true;
+  });
+
+  /* ---------- início ---------- */
+  history.replaceState({ tela: 'treino' }, '');
+  gravar();
+  render();
+
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+})();
+</script>
+</body>
+</html>
