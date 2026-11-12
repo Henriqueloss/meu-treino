@@ -1,6 +1,6 @@
 # Meu treino
 
-App de treino para o celular, com os treinos A, B, C e D. Depois de instalado, funciona sem internet.
+App de treino para o celular, com os treinos A a G. Depois de instalado, funciona sem internet.
 
 ## 1. Publicar (uma vez, pelo computador)
 
@@ -19,14 +19,27 @@ App de treino para o celular, com os treinos A, B, C e D. Depois de instalado, f
 
 - Ao abrir, aparece o treino do dia. Toque no número de um exercício para marcá-lo como feito.
 - Séries, repetições, carga e observação são editadas direto na lista e salvas na hora.
-- **Finalizar treino** guarda as cargas no histórico e passa para o próximo (A → B → C → D → A).
-- Para fazer outro treino no dia, toque na letra dele e em **Fazer o … hoje**.
+- **Finalizar treino** guarda as cargas no histórico e passa para o próximo. A ordem se escolhe na engrenagem → **Ordem dos treinos**:
+  - **Dois ciclos** (padrão): **A → B → C → D → A** e **E → F → G → E**. O próximo é sempre do mesmo ciclo.
+  - **Ciclo único**: **A → B → C → D → E → F → G → A**.
+- Para fazer outro treino no dia, toque na letra dele e em **Fazer o … hoje**. No modo de dois ciclos, é assim que se troca de ciclo.
 - O lápis serve para renomear, reordenar, adicionar e remover exercícios.
 
 ## Seus dados
 
-Cargas e histórico ficam só no celular; o GitHub guarda apenas a ficha inicial. Faça um backup de vez em quando pelo ícone de disquete → **Exportar backup**. Em outro celular, use **Importar backup**.
+Cargas e histórico ficam só no celular; o GitHub guarda apenas a ficha inicial. Faça um backup de vez em quando pela engrenagem → **Exportar backup**. Em outro celular, use **Importar backup**. O backup também guarda a ordem escolhida.
 
 ## Atualizar o app
 
-Troque os arquivos no repositório e, em `sw.js`, mude `meu-treino-v1` para `meu-treino-v2` (e assim por diante). Os dados do celular continuam lá.
+Troque os arquivos no repositório e, em `sw.js`, aumente o número em `meu-treino-v3` (v4, v5 e assim por diante). Depois, abra o app no celular, espere alguns segundos, feche e abra de novo. Os dados do celular continuam lá.
+
+## Versão 1.2
+
+- Opção de **ciclo único** (A a G em sequência), na engrenagem → **Ordem dos treinos**.
+- O backup passou para a mesma tela (o ícone de disquete virou engrenagem).
+
+## Versão 1.1
+
+- Novos treinos E, F e G, com as cargas da ficha nova.
+- Quem já usava a versão 1.0 mantém treinos, cargas e histórico: os treinos E, F e G aparecem sozinhos assim que a versão nova abrir.
+- A ficha inicial (usada num celular novo) já inclui as mudanças feitas nos treinos C e D.

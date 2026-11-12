@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Meu treino</title>
-<meta name="description" content="Treinos A, B, C e D com registro de cargas. Funciona sem internet.">
+<meta name="description" content="Treinos A a G com registro de cargas. Funciona sem internet.">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#E9ECEF">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#18191B">
 <link rel="manifest" href="manifest.webmanifest">
@@ -16,6 +16,7 @@
   --bg:#E9ECEF;--sheet:#FFFFFF;--field:#EDF0F3;--ink:#16181B;--muted:#5F6670;--hair:#D5D9DE;
   --danger:#B3261E;--danger-ink:#FFFFFF;
   --red:#C8342C;--blue:#2456C3;--yellow:#F1C232;--green:#23874A;
+  --purple:#7B45C2;--orange:#EE7F2D;--teal:#0E7C86;
   --plate:var(--red);--plate-ink:#FFFFFF;
   --display:"Roboto Condensed","sans-serif-condensed","Arial Narrow",system-ui,sans-serif;
   --body:Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -27,10 +28,16 @@ body[data-cor="red"]{--plate:var(--red);--plate-ink:#FFFFFF}
 body[data-cor="blue"]{--plate:var(--blue);--plate-ink:#FFFFFF}
 body[data-cor="yellow"]{--plate:var(--yellow);--plate-ink:#1C1A14}
 body[data-cor="green"]{--plate:var(--green);--plate-ink:#FFFFFF}
+body[data-cor="purple"]{--plate:var(--purple);--plate-ink:#FFFFFF}
+body[data-cor="orange"]{--plate:var(--orange);--plate-ink:#1C1A14}
+body[data-cor="teal"]{--plate:var(--teal);--plate-ink:#FFFFFF}
 .c-red{--c:var(--red);--c-ink:#FFFFFF}
 .c-blue{--c:var(--blue);--c-ink:#FFFFFF}
 .c-yellow{--c:var(--yellow);--c-ink:#1C1A14}
 .c-green{--c:var(--green);--c-ink:#FFFFFF}
+.c-purple{--c:var(--purple);--c-ink:#FFFFFF}
+.c-orange{--c:var(--orange);--c-ink:#1C1A14}
+.c-teal{--c:var(--teal);--c-ink:#FFFFFF}
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -70,14 +77,16 @@ input{min-width:0}
 .link{font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:6px 2px}
 
 /* abas */
-.tabs{display:flex;align-items:flex-start;gap:8px;padding-bottom:24px}
-.tab{position:relative;flex:none;width:52px;height:42px;border-radius:12px;background:var(--sheet);border:1px solid var(--hair);font:700 19px/1 var(--display);color:var(--ink)}
+.tabs{display:flex;align-items:flex-start;gap:6px;padding-bottom:24px}
+.tab{position:relative;flex:1 1 0;min-width:0;height:42px;border-radius:12px;background:var(--sheet);border:1px solid var(--hair);font:700 19px/1 var(--display);color:var(--ink)}
+.tab-sep{flex:none;align-self:center;width:2px;height:24px;margin:0 2px;border-radius:1px;background:var(--hair)}
 .tab::after{content:"";position:absolute;left:50%;bottom:6px;width:16px;height:3px;margin-left:-8px;border-radius:2px;background:var(--c)}
 .tab.on{background:var(--c);color:var(--c-ink);border-color:transparent}
 .tab.on::after{display:none}
 .tab small{position:absolute;top:calc(100% + 3px);left:-8px;right:-8px;font:500 12px/1.2 var(--body);color:var(--muted)}
-.count{margin-left:auto;align-self:center;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
-.prog{height:4px;margin:0 0 14px;border-radius:2px;background:var(--hair);overflow:hidden}
+.prog-row{display:flex;align-items:center;gap:12px;margin:0 0 14px}
+.count{flex:none;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.prog{flex:1;height:4px;border-radius:2px;background:var(--hair);overflow:hidden}
 .prog i{display:block;height:100%;width:0;background:var(--plate);transition:width .25s ease}
 
 /* lista */
@@ -161,8 +170,15 @@ body.typing .dock{display:none}
 .h-tab tr.pulou td{color:var(--muted);opacity:.7}
 .link.perigo{display:block;margin:4px 16px 12px;color:var(--danger)}
 
-/* backup */
-.painel{display:grid;gap:10px;padding:8px 16px}
+/* ajustes */
+.secao{margin:0;padding:16px 16px 8px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.opcoes{display:grid;gap:10px;padding:0 16px 8px}
+.opcao{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:14px;background:var(--sheet);border:1px solid var(--hair);cursor:pointer}
+.opcao:has(input:checked){border-color:var(--plate);box-shadow:inset 0 0 0 1px var(--plate)}
+.opcao input{flex:none;width:22px;height:22px;margin:1px 0 0;accent-color:var(--plate)}
+.opcao span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.opcao small{color:var(--muted);font-size:14px}
+.painel{display:grid;gap:10px;padding:0 16px 8px}
 .painel p{margin:0 0 6px;color:var(--muted)}
 label.btn{cursor:pointer}
 .rodape{margin:0;padding:12px 16px;color:var(--muted);font-size:13px}
@@ -179,57 +195,92 @@ label.btn{cursor:pointer}
 (() => {
   'use strict';
 
-  const VERSAO = '1.0';
+  const VERSAO = '1.2';
   const CHAVE = 'meu-treino:v1';
-  const ORDEM = ['A', 'B', 'C', 'D'];
-  const COR = { A: 'red', B: 'blue', C: 'yellow', D: 'green' };
+  // Ordem dos treinos, escolhida em Ajustes:
+  // - dois ciclos (padrão): A → B → C → D → A e E → F → G → E; troca-se de ciclo tocando na letra e em "Fazer o … hoje";
+  // - ciclo único: A → B → C → D → E → F → G → A.
+  const CICLOS = [['A', 'B', 'C', 'D'], ['E', 'F', 'G']];
+  const ORDEM = CICLOS.flat();
+  const COR = { A: 'red', B: 'blue', C: 'yellow', D: 'green', E: 'purple', F: 'orange', G: 'teal' };
 
   // Ficha inicial: usada só no primeiro acesso. Depois vale o que estiver salvo no celular.
+  // Cada exercício: [nome, séries, repetições, carga, observação]
   const PLANO = {
     A: { foco: 'Costas e bíceps', ex: [
-      ['Pulley frente supinado', '3', '12', ''],
-      ['Remada curvada articulada', '3', '12', ''],
-      ['Remada baixa', '3', '8', 'Fazer as 3 pegadas'],
-      ['Crucifixo inverso', '3', '12', ''],
-      ['Face pull', '3', '12', '+ Rosca direta na polia'],
-      ['Rosca 21 com barra', '3', '21', ''],
-      ['Prancha lateral', '', '', ''],
+      ['Pulley frente supinado', '3', '12', '', ''],
+      ['Remada curvada articulada', '3', '12', '', ''],
+      ['Remada baixa', '3', '8', '', 'Fazer as 3 pegadas'],
+      ['Crucifixo inverso', '3', '12', '', ''],
+      ['Face pull', '3', '12', '', '+ Rosca direta na polia'],
+      ['Rosca 21 com barra', '3', '21', '', ''],
+      ['Prancha lateral', '', '', '', ''],
     ] },
     B: { foco: 'Pernas: glúteos e posteriores', ex: [
-      ['Agachamento hack', '3', '12', ''],
-      ['Elevação pélvica na máquina', '3', '12', ''],
-      ['Leg press 45°', '3', '12', 'Unilateral'],
-      ['Agachamento articulado sumô', '3', '12', ''],
-      ['Cadeira flexora', '3', '10', ''],
-      ['Coice na máquina', '3', '10', ''],
-      ['Banco romano', '', '', ''],
-      ['Abdominal infra', '', 'Até a falha', ''],
+      ['Agachamento hack', '3', '12', '', ''],
+      ['Elevação pélvica na máquina', '3', '12', '', ''],
+      ['Leg press 45°', '3', '12', '', 'Unilateral'],
+      ['Agachamento articulado sumô', '3', '12', '', ''],
+      ['Cadeira flexora', '3', '10', '', ''],
+      ['Coice na máquina', '3', '10', '', ''],
+      ['Banco romano', '', '', '', ''],
+      ['Abdominal infra', '', 'Até a falha', '', ''],
     ] },
     C: { foco: 'Peito, ombros e tríceps', ex: [
-      ['Tríceps na máquina', '3', '12', ''],
-      ['Crucifixo na máquina', '3', '10', ''],
-      ['Supino reto com halter', '3', '10', 'Unilateral'],
-      ['Desenvolvimento Arnold', '3', '12', ''],
-      ['Elevação lateral unilateral na polia', '3', '10', ''],
-      ['Elevação frontal na polia', '3', '12', 'Com corda'],
-      ['Tríceps francês na polia', '3', '10', ''],
-      ['Prancha + abdominal remador com peso', '', '', 'Feitos em conjunto'],
+      ['Tríceps na máquina', '3', '12', '100', 'Atenção no movimento'],
+      ['Crucifixo na máquina', '3', '10', '49', 'Terceiro pino'],
+      ['Supino reto com halter', '3', '10', '18', 'Unilateral'],
+      ['Desenvolvimento Arnold', '3', '12', '12', ''],
+      ['Elevação lateral halteres', '3', '10', '7', 'Pode fazer junto com elevação frontal'],
+      ['Elevação frontal', '3', '12', '7', 'Pode ser junto com elevação lateral'],
+      ['Tríceps francês', '3', '10', '8', ''],
+      ['Prancha + abdominal remador com peso', '3', '25', '10', 'Feitos em conjunto | Prancha 1 min'],
     ] },
     D: { foco: 'Pernas: quadríceps e panturrilha', ex: [
-      ['Cadeira extensora', '3', '12', 'Unilateral'],
-      ['Afundo no Smith', '3', '10', ''],
-      ['Agachamento no Smith', '3', '15', ''],
-      ['Cadeira adutora', '3', '10', ''],
-      ['Leg press horizontal', '3', '10', 'Unilateral'],
-      ['Panturrilha livre', '3', '15', ''],
-      ['Abdominal oblíquo + supra', '', '', '5 de cada ou 7 de cada'],
+      ['Cadeira extensora', '3', '12', '60', 'Unilateral'],
+      ['Afundo no Smith', '3', '10', '15', ''],
+      ['Agachamento no Smith', '3', '15', '25', ''],
+      ['Cadeira adutora', '3', '10', '80', ''],
+      ['Leg press horizontal', '3', '10', '100', 'Unilateral'],
+      ['Panturrilha livre', '3', '15', '40', ''],
+      ['Abdominal oblíquo + supra', '', '', '', '5 de cada ou 7 de cada no banco inclinado'],
+    ] },
+    E: { foco: 'Peito, ombros e tríceps', ex: [
+      ['Supino inclinado articulado', '4', '10-12', '25', 'Cada lado'],
+      ['Supino declinado com barra', '4', '10-12', '20', ''],
+      ['Crucifixo', '4', '10-12', '50', 'Máquina (Drop-set)'],
+      ['Desenvolvimento Arnold', '4', '10-12', '12', 'Cada lado'],
+      ['Elevação lateral halter', '4', '10-12', '8', 'Drop-set | Cada lado'],
+      ['Tríceps corda', '4', '10-12', '36', ''],
+      ['Tríceps de costas corda', '4', '10-12', '24', ''],
+      ['Prancha + abd. remador', '3', '20', '8', ''],
+    ] },
+    F: { foco: 'Pernas completo', ex: [
+      ['Agachamento no Smith (ou hack ou livre)', '4', '10-12', '25', '25 kg no Smith / 35 kg no Hack'],
+      ['Afundo livre no Smith', '4', '10-12', '15', 'Cada lado'],
+      ['Leg 45 abduzido', '4', '10-12', '100', 'Carga total'],
+      ['Cadeira adutora', '4', '10-12', '80', ''],
+      ['Cadeira extensora', '4', '10-12', '65', 'Drop-set: começa pesado'],
+      ['Cadeira flexora', '4', '10-12', '65', ''],
+      ['Banco romano', '4', '10-12', '15', ''],
+      ['Abdominal oblíquo', '4', '10-12', '10', 'No banco romano com bola'],
+    ] },
+    G: { foco: 'Costas e bíceps', ex: [
+      ['Pulley frente triângulo', '4', '10-12', '55', ''],
+      ['Remada articulada máquina', '4', '10-12', '50', 'Pegada neutra'],
+      ['Remada baixa pronada', '4', '10-12', '40', ''],
+      ['Facepull', '4', '10-12', '40', ''],
+      ['Remada alta', '4', '10-12', '36', 'Barra W'],
+      ['Rosca direta', '4', '10-12', '40', 'Dropset no final'],
+      ['Rosca martelo', '4', '10-12', '35', ''],
+      ['Abdominal banco inclinado', '4', '15-20', '10', ''],
     ] },
   };
 
   const svg = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const I = {
     hist: svg('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>'),
-    salvar: svg('<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/>'),
+    ajustes: svg('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>'),
     lapis: svg('<path d="M21.17 6.81a2.82 2.82 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/>'),
     ok: svg('<path d="M20 6 9 17l-5-5"/>'),
     cima: svg('<path d="m18 15-6-6-6 6"/>'),
@@ -253,24 +304,35 @@ label.btn{cursor:pointer}
   const txt = v => (v == null ? '' : String(v));
   const repsLongo = v => /[^\d\s.,\-–\/x×]/i.test(v);
   const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-  const proximoDe = l => ORDEM[(ORDEM.indexOf(l) + 1) % ORDEM.length];
+  const ciclosAtivos = () => (S.cicloUnico ? [ORDEM] : CICLOS);
+  const cicloDe = l => ciclosAtivos().find(c => c.includes(l)) || ORDEM;
+  const proximoDe = l => { const c = cicloDe(l); return c[(c.indexOf(l) + 1) % c.length]; };
+  const abreCiclo = l => ciclosAtivos().some((c, i) => i > 0 && c[0] === l);
+  const textoCiclo = c => [...c, c[0]].join(' → ');
 
   /* ---------- dados ---------- */
-  const exercicio = (nome, series, reps, obs) => ({ id: uid(), nome, series, reps, carga: '', obs, feito: false });
+  const exercicio = (nome = '', series = '', reps = '', carga = '', obs = '') => ({ id: uid(), nome, series, reps, carga, obs, feito: false });
+  const fichaInicial = l => ({ foco: PLANO[l].foco, exercicios: PLANO[l].ex.map(e => exercicio(...e)) });
 
   function estadoNovo() {
     const treinos = {};
-    ORDEM.forEach(l => { treinos[l] = { foco: PLANO[l].foco, exercicios: PLANO[l].ex.map(e => exercicio(...e)) }; });
-    return { v: 1, proximo: 'A', treinos, historico: [] };
+    ORDEM.forEach(l => { treinos[l] = fichaInicial(l); });
+    return { v: 1, proximo: 'A', cicloUnico: false, treinos, historico: [] };
   }
 
   function normalizar(s) {
-    if (!s || typeof s !== 'object' || !s.treinos) return null;
-    if (!ORDEM.every(l => s.treinos[l] && Array.isArray(s.treinos[l].exercicios))) return null;
+    if (!s || typeof s !== 'object' || !s.treinos || typeof s.treinos !== 'object') return null;
+    const valido = t => !!t && typeof t === 'object' && Array.isArray(t.exercicios);
+    // Todo backup tem pelo menos A–D (a versão 1.0 só tinha esses).
+    if (!CICLOS[0].every(l => valido(s.treinos[l]))) return null;
     const limpo = e => ({ id: txt(e.id) || uid(), nome: txt(e.nome), series: txt(e.series), reps: txt(e.reps), carga: txt(e.carga), obs: txt(e.obs), feito: !!e.feito });
     const treinos = {};
     ORDEM.forEach(l => {
-      treinos[l] = { foco: txt(s.treinos[l].foco), exercicios: s.treinos[l].exercicios.filter(e => e && typeof e === 'object').map(limpo) };
+      const t = s.treinos[l];
+      // Treino que ainda não existe no celular (E, F e G, ao atualizar da versão 1.0) entra com a ficha inicial.
+      treinos[l] = valido(t)
+        ? { foco: txt(t.foco), exercicios: t.exercicios.filter(e => e && typeof e === 'object').map(limpo) }
+        : fichaInicial(l);
     });
     const historico = (Array.isArray(s.historico) ? s.historico : [])
       .filter(h => h && ORDEM.includes(h.treino) && Number.isFinite(Number(h.ts)) && Array.isArray(h.exercicios))
@@ -279,7 +341,7 @@ label.btn{cursor:pointer}
         exercicios: h.exercicios.filter(e => e && typeof e === 'object').map(e => { const x = limpo(e); delete x.id; return x; }),
       }))
       .sort((a, b) => b.ts - a.ts);
-    return { v: 1, proximo: ORDEM.includes(s.proximo) ? s.proximo : 'A', treinos, historico };
+    return { v: 1, proximo: ORDEM.includes(s.proximo) ? s.proximo : 'A', cicloUnico: s.cicloUnico === true, treinos, historico };
   }
 
   let salvaOk = true;
@@ -316,7 +378,7 @@ label.btn{cursor:pointer}
     document.body.dataset.cor = COR[view.letra];
     document.body.classList.remove('typing');
     if (view.tela === 'historico') renderHistorico();
-    else if (view.tela === 'backup') renderBackup();
+    else if (view.tela === 'ajustes') renderAjustes();
     else renderTreino();
   }
 
@@ -338,7 +400,7 @@ label.btn{cursor:pointer}
   <div class="bar">
     <span class="hoje-data">${esc(hojeExtenso())}</span>
     <button class="icon" data-act="historico" aria-label="Histórico">${I.hist}</button>
-    <button class="icon" data-act="backup" aria-label="Backup">${I.salvar}</button>
+    <button class="icon" data-act="ajustes" aria-label="Ajustes e backup">${I.ajustes}</button>
   </div>
   <div class="hero">
     <div class="plate" id="plate" aria-hidden="true"><span>${L}</span></div>
@@ -351,10 +413,9 @@ label.btn{cursor:pointer}
   </div>
   ${notas}
   <div class="tabs" role="tablist" aria-label="Treinos">
-    ${ORDEM.map(l => `<button class="tab c-${COR[l]}${l === L ? ' on' : ''}" role="tab" aria-selected="${l === L}" data-tab="${l}">${l}${l === S.proximo ? `<small>${feitoHoje ? 'próximo' : 'hoje'}</small>` : ''}</button>`).join('')}
-    ${ed ? '' : `<span class="count" id="count">${f} de ${exs.length} feitos</span>`}
+    ${ORDEM.map(l => `${abreCiclo(l) ? '<span class="tab-sep" aria-hidden="true"></span>' : ''}<button class="tab c-${COR[l]}${l === L ? ' on' : ''}" role="tab" aria-selected="${l === L}" data-tab="${l}">${l}${l === S.proximo ? `<small>${feitoHoje ? 'próximo' : 'hoje'}</small>` : ''}</button>`).join('')}
   </div>
-  ${ed ? '' : `<div class="prog" aria-hidden="true"><i id="prog" style="width:${exs.length ? Math.round(f / exs.length * 100) : 0}%"></i></div>`}
+  ${ed ? '' : `<div class="prog-row"><div class="prog" aria-hidden="true"><i id="prog" style="width:${exs.length ? Math.round(f / exs.length * 100) : 0}%"></i></div><span class="count" id="count">${f} de ${exs.length} feitos</span></div>`}
 </header>
 <ol class="list">${exs.map((e, i) => itemTreino(e, i, exs.length, ed)).join('')}</ol>
 ${ed ? `<button class="add" data-act="adicionar">${I.mais}Adicionar exercício</button>` : ''}
@@ -421,15 +482,25 @@ ${H.length ? `<ul class="hist">${H.map(itemHistorico).join('')}</ul>`
 </details></li>`;
   }
 
-  function renderBackup() {
+  function renderAjustes() {
     const n = S.historico.length;
+    const opcao = (unico, titulo, ordem) => `<label class="opcao">
+    <input type="radio" name="ciclo" value="${unico ? 'unico' : 'dois'}"${unico === S.cicloUnico ? ' checked' : ''}>
+    <span><strong>${titulo}</strong><small>${ordem}</small></span>
+  </label>`;
     app.innerHTML = `
 <header class="head">
   <div class="bar">
     <button class="icon" data-act="voltar" aria-label="Voltar">${I.voltar}</button>
-    <h1 class="tela-t">Backup</h1>
+    <h1 class="tela-t">Ajustes</h1>
   </div>
 </header>
+<h2 class="secao" id="t-ordem">Ordem dos treinos</h2>
+<div class="opcoes" role="radiogroup" aria-labelledby="t-ordem">
+  ${opcao(false, 'Dois ciclos', CICLOS.map(textoCiclo).join('<br>'))}
+  ${opcao(true, 'Ciclo único', textoCiclo(ORDEM))}
+</div>
+<h2 class="secao">Backup</h2>
 <section class="painel">
   <p>Treinos, cargas e histórico ficam salvos só neste celular. Exporte um backup de vez em quando e guarde no Drive ou no e-mail. Se trocar de celular ou limpar os dados do Chrome, é só importar o arquivo.</p>
   <button class="btn go wide" data-act="exportar">Exportar backup</button>
@@ -500,7 +571,7 @@ ${H.length ? `<ul class="hist">${H.map(itemHistorico).join('')}</ul>`
 
   function adicionar() {
     const exs = S.treinos[view.letra].exercicios;
-    exs.push(exercicio('', '', '', ''));
+    exs.push(exercicio());
     salvar(); render();
     const campo = app.querySelector(`.name-in[data-i="${exs.length - 1}"]`);
     if (campo) { campo.scrollIntoView({ block: 'center' }); campo.focus(); }
@@ -532,6 +603,20 @@ ${H.length ? `<ul class="hist">${H.map(itemHistorico).join('')}</ul>`
     const plate = document.getElementById('plate');
     if (plate) { plate.classList.remove('roll'); void plate.offsetWidth; plate.classList.add('roll'); }
     toast(`Treino ${L} finalizado. Próximo: ${prox}.`);
+  }
+
+  function mudarCiclo(unico) {
+    if (S.cicloUnico === unico) return;
+    // Se o próximo treino ainda é o que veio automaticamente depois do último finalizado,
+    // ele passa a seguir a nova ordem (ex.: depois do D, A vira E). Uma escolha feita em "Fazer o … hoje" fica.
+    const ult = S.historico[0];
+    const automatico = !!ult && S.proximo === proximoDe(ult.treino);
+    S.cicloUnico = unico;
+    if (automatico) S.proximo = proximoDe(ult.treino);
+    view.letra = S.proximo;
+    document.body.dataset.cor = COR[view.letra];
+    gravar();
+    toast(`${unico ? 'Ciclo único ativado' : 'Dois ciclos ativados'}. Próximo: ${S.proximo}.`);
   }
 
   function pedirExcluir(id) {
@@ -644,7 +729,7 @@ ${H.length ? `<ul class="hist">${H.map(itemHistorico).join('')}</ul>`
     switch (b.dataset.act) {
       case 'feito': alternarFeito(b, i); break;
       case 'historico': irPara('historico'); break;
-      case 'backup': irPara('backup'); break;
+      case 'ajustes': irPara('ajustes'); break;
       case 'voltar': history.back(); break;
       case 'hoje': S.proximo = view.letra; gravar(); render(); toast(`Treino ${view.letra} é o de hoje.`); break;
       case 'editar': view.editando = true; render(); break;
@@ -673,27 +758,30 @@ ${H.length ? `<ul class="hist">${H.map(itemHistorico).join('')}</ul>`
 
   app.addEventListener('change', ev => {
     const t = ev.target;
+    if (t.name === 'ciclo') { mudarCiclo(t.value === 'unico'); return; }
     if (!t.matches('[data-importar]') || !t.files || !t.files[0]) return;
     const arq = t.files[0];
     t.value = '';
     importar(arq);
   });
 
+  // Campos de digitação: enquanto o teclado está aberto, a barra de baixo some.
+  const CAMPO = 'input:not([type=file]):not([type=radio])';
   app.addEventListener('keydown', ev => {
-    if (ev.key === 'Enter' && ev.target.matches('input:not([type=file])')) { ev.preventDefault(); ev.target.blur(); }
+    if (ev.key === 'Enter' && ev.target.matches(CAMPO)) { ev.preventDefault(); ev.target.blur(); }
   });
   document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && sheet) history.back(); });
 
   app.addEventListener('focusin', ev => {
     const t = ev.target;
-    if (!t.matches('input:not([type=file])')) return;
+    if (!t.matches(CAMPO)) return;
     document.body.classList.add('typing');
     if (t.classList.contains('n')) setTimeout(() => { try { t.select(); } catch (e) { /* segue */ } }, 0);
   });
   app.addEventListener('focusout', () => {
     setTimeout(() => {
       const a = document.activeElement;
-      if (!a || !a.matches || !a.matches('input:not([type=file])')) document.body.classList.remove('typing');
+      if (!a || !a.matches || !a.matches(CAMPO)) document.body.classList.remove('typing');
     }, 80);
   });
 
